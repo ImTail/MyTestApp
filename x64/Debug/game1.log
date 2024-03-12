@@ -1,0 +1,8 @@
+﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(531,5): warning MSB8028: 中间目录(x64\Debug\)包含从另一个项目(game1.vcxproj)共享的文件。   这会导致错误的清除和重新生成行为。
+  MainFunctionSystem.c
+E:\VS\PRO\game1\MainFunctionSystem.c(89,11): warning C4098: “addStu”:“void”函数返回值
+E:\VS\PRO\game1\MainFunctionSystem.c(144,15): warning C4047: “函数”:“char *”与“char *[40]”的间接级别不同
+E:\VS\PRO\game1\MainFunctionSystem.c(144,15): warning C4024: “fgets”: 形参和实参 1 的类型不同
+E:\VS\PRO\game1\MainFunctionSystem.c(146,16): warning C4047: “函数”:“char *”与“char *[40]”的间接级别不同
+E:\VS\PRO\game1\MainFunctionSystem.c(146,16): warning C4024: “strtok”: 形参和实参 1 的类型不同
+  game1.vcxproj -> E:\VS\PRO\game1\x64\Debug\StudentSystem.exe
