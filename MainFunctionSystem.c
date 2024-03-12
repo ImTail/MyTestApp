@@ -20,7 +20,7 @@ void delStu();
 void modStu();
 
 void getByIdStu();
-
+void getByNameStu();
 
 //主程序循环
 int main() {
@@ -120,7 +120,7 @@ void checkStu() {
 
 	switch (opt) {
 		case '1':getByIdStu();break;
-		case '2':break;
+		case '2':getByNameStu(); break;
 		default:printf("不存在的选项,返回主菜单");return;
 	}
 	printf("*****\n");
@@ -128,41 +128,92 @@ void checkStu() {
 }
 
 void getByIdStu() {
+
+	/*
 	Student * ss = (Student*)malloc(sizeof(Student)*1024); //开辟1024个结构体Student的内存空间
 	Student* start = ss;//记录ss的起始地址。
+	*/
+	
 	FILE* fp = fopen(DataFile,"r");//得到文件流
-	char* buff[40];//读取字符串缓冲
-	char* tok;
-	char id;
+	char buff[40];//读取字符串缓冲
+	char tok[10];//临时接收被分割出来的字符串
+	int id;//查找的id号
 
 	printf("请输入id(输入q退出):");
-	scanf("%c",&id);
+	scanf("%d",&id);
 	getchar();
 
 	if (id == 'q')return;
 
 	while (fgets(buff,40,fp)!=NULL) {
 
-		tok = strtok(buff,":");
-		ss -> id =atoi(tok);//将学号（字符串）转换为整形输入到结构体
-		printf("%s \n",tok);
+			strcpy(tok, strtok(buff, ":"));
+			//ss -> id =atoi(tok);//将学号（字符串）转换为整形输入到结构体
+
+		if (atoi(tok)==id) {
+
+			printf("~学号：%s\n", tok);
 
 
-		tok = strtok(NULL, ":");//获取第二位（名字）
-		strcpy(ss->name,tok);
-		printf("%s \n", tok);
+			strcpy(tok, strtok(NULL, ":"));
+			//strcpy(ss->name,tok);
+			printf("~名字：%s\n", tok);
 
-		tok = strtok(NULL, ":");
-		strcpy(ss->gender, tok);//获取第三位（性别）
-		printf("%s", tok);//最后一项自带换行符
 
-		ss++;
+			strcpy(tok, strtok(NULL, ":"));
+			//strcpy(ss->gender, tok);//获取第三位（性别）
+			printf("~性别：%s", tok);//最后一项自带换行符
+		}
+
+		//ss++;//前往下一个结构体
 	}
 	printf("查找结束\n");
 
+	/*
 	free(start);//ss++导致原指针的内存地址变化，free的地址发生变化，需要用起始的地址进行释放。
 	ss = NULL;
 	start = NULL;
+	*/
 
+	fclose(fp);
+	fp = NULL;
+
+	return;
+}
+
+void getByNameStu() {
+	FILE* fp = fopen(DataFile,"r");//文件流
+	char buff[40];//读入缓冲区
+	char tok[10];//分隔字符串缓冲
+	char name[10];//输入名字缓冲区
+	int id;//id存储，因为id是在name前面一个，如果找到目标，需要调用输出。
+
+	printf("请输入名字(输入q退出)：");
+	scanf("%s", name);
+	getchar();
+
+	if (!strcmp(name, "q")) return;
+
+
+	while (fgets(buff,40,fp) != NULL) {
+			strcpy(tok,strtok(buff, ":"));
+			id = atoi(tok);
+
+			strcpy(tok, strtok(NULL, ":"));
+			if (!strcmp(tok,name)) {
+
+				printf("~学号：%d\n", id);
+
+				printf("~名字：%s\n",tok);
+
+				strcpy(tok, strtok(NULL, ":"));
+				printf("~性别：%s", tok);
+		}
+	}
+
+	printf("查找结束\n");
+
+	fclose(fp);
+	fp = NULL;
 	return;
 }
