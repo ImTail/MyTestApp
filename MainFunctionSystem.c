@@ -19,8 +19,8 @@ void checkStu();
 void delStu();
 void modStu();
 
-void getByIdStu();
-void getByNameStu();
+Student getByIdStu(int);
+Student getByNameStu(char*);
 
 //主程序循环
 int main() {
@@ -40,7 +40,7 @@ int main() {
 		case '1':addStu();break;
 		case '2':showStu();break;
 		case '3':checkStu();break;
-		case '4':break;
+		case '4':delStu();break;
 		case '5':break;
 		case '6':isRunning = 0;printf("感谢使用，再见！\n"); break;
 		default:printf("无效的输入,请重试！\n");
@@ -110,110 +110,111 @@ void showStu() {
 
 void checkStu() {
 	char opt;
+	int idIn;
+	char nameIn[10];
+	Student s;
 
 	printf("*****\n");
 	printf("通过_查找：\n");
 	printf("1.id\n");
 	printf("2.name\n");
+	printf("其它.返回\n");
 	scanf("%c",&opt);
 	getchar();
 
 	switch (opt) {
-		case '1':getByIdStu();break;
-		case '2':getByNameStu(); break;
-		default:printf("不存在的选项,返回主菜单");return;
+		case '1':
+			printf("请输入学号：");
+			scanf("%d",&idIn);
+			getchar();
+			s=getByIdStu(idIn);//调用查找函数，返回相同数据的结构体
+			if (s.id == -1) { printf("不存在的学生!\n"); }//当id=-1也即未赋值时，没有找到相关，并进行判断。
+			else {printf("\n~ | 学号：%d | 姓名：%s | 性别：%s \n", s.id, s.name, s.gender);};
+			printf("查找结束\n");
+		break;
+		case '2':
+			printf("请输入名字：");
+			scanf("%s", nameIn);
+			getchar();
+			s = getByNameStu(nameIn);;
+			if (s.id == -1) { printf("不存在的学生!\n"); } 
+			else { printf("\n~ | 学号：%d | 姓名：%s | 性别：%s \n", s.id, s.name, s.gender); };
+			printf("查找结束\n");
+			break;
+		default:printf("不存在的选项,返回主菜单\n");return;
 	}
 	printf("*****\n");
 	return;
 }
 
-void getByIdStu() {
 
-	/*
-	Student * ss = (Student*)malloc(sizeof(Student)*1024); //开辟1024个结构体Student的内存空间
-	Student* start = ss;//记录ss的起始地址。
-	*/
+void delStu() {
+
+}
+
+Student getByIdStu(int id) {
 	
 	FILE* fp = fopen(DataFile,"r");//得到文件流
 	char buff[40];//读取字符串缓冲
-	char tok[10];//临时接收被分割出来的字符串
-	int id;//查找的id号
+	Student s;//返回值
+	s.id = -1;//当没有被赋值时，这个值作为标志位判断。
 
-	printf("请输入id(输入q退出):");
-	scanf("%d",&id);
-	getchar();
-
-	if (id == 'q')return;
+	int idT;
+	char nameT[10];
+	char genderT[10];
 
 	while (fgets(buff,40,fp)!=NULL) {
 
-			strcpy(tok, strtok(buff, ":"));
-			//ss -> id =atoi(tok);//将学号（字符串）转换为整形输入到结构体
+		idT = atoi(strtok(buff, ":"));//把三项分隔出来的字符串放入缓冲
+		strcpy(nameT, strtok(NULL, ":"));
+		strcpy(genderT, strtok(NULL, ":"));
+		
+		//查找到匹配项，赋值到结构体，用于返回值
+		if (idT==id) {
 
-		if (atoi(tok)==id) {
+			s.id = idT;
 
-			printf("~学号：%s\n", tok);
+			strcpy(s.name, nameT);
 
-
-			strcpy(tok, strtok(NULL, ":"));
-			//strcpy(ss->name,tok);
-			printf("~名字：%s\n", tok);
-
-
-			strcpy(tok, strtok(NULL, ":"));
-			//strcpy(ss->gender, tok);//获取第三位（性别）
-			printf("~性别：%s", tok);//最后一项自带换行符
+			strcpy(s.gender, genderT);
 		}
 
-		//ss++;//前往下一个结构体
 	}
-	printf("查找结束\n");
-
-	/*
-	free(start);//ss++导致原指针的内存地址变化，free的地址发生变化，需要用起始的地址进行释放。
-	ss = NULL;
-	start = NULL;
-	*/
-
 	fclose(fp);
 	fp = NULL;
 
-	return;
+	return s;
 }
 
-void getByNameStu() {
-	FILE* fp = fopen(DataFile,"r");//文件流
-	char buff[40];//读入缓冲区
-	char tok[10];//分隔字符串缓冲
-	char name[10];//输入名字缓冲区
-	int id;//id存储，因为id是在name前面一个，如果找到目标，需要调用输出。
+Student getByNameStu(char* name) {
+	FILE* fp = fopen(DataFile, "r");//得到文件流
+	char buff[40];//读取字符串缓冲
+	Student s;//返回值
+	s.id = -1;
 
-	printf("请输入名字(输入q退出)：");
-	scanf("%s", name);
-	getchar();
+	int idT;
+	char nameT[10];
+	char genderT[10];
 
-	if (!strcmp(name, "q")) return;
+	while (fgets(buff, 40, fp) != NULL) {
 
+		idT = atoi(strtok(buff, ":"));//把三项分隔出来的字符串放入缓冲
+		strcpy(nameT, strtok(NULL, ":"));
+		strcpy(genderT, strtok(NULL, ":"));
 
-	while (fgets(buff,40,fp) != NULL) {
-			strcpy(tok,strtok(buff, ":"));
-			id = atoi(tok);
+		//查找到匹配项，赋值到结构体，用于返回值
+		if (!strcmp(name,nameT)) {
 
-			strcpy(tok, strtok(NULL, ":"));
-			if (!strcmp(tok,name)) {
+			s.id = idT;
 
-				printf("~学号：%d\n", id);
+			strcpy(s.name, nameT);
 
-				printf("~名字：%s\n",tok);
-
-				strcpy(tok, strtok(NULL, ":"));
-				printf("~性别：%s", tok);
+			strcpy(s.gender, genderT);
 		}
+
 	}
-
-	printf("查找结束\n");
-
 	fclose(fp);
 	fp = NULL;
-	return;
+
+	return s;
 }
