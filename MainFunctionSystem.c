@@ -1,5 +1,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #define DataFile "stuData.txt"
+#define DataFileTemp "dataFileTemp.txt"
+
 #include <stdio.h>
 #include <stdlib.h>//使用malloc
 #include <string.h>
@@ -21,6 +23,8 @@ void modStu();
 
 Student getByIdStu(int);
 Student getByNameStu(char*);
+Student delByIdStu(int);
+Student delByNameStu(char*);
 
 //主程序循环
 int main() {
@@ -147,9 +151,43 @@ void checkStu() {
 	return;
 }
 
-
+//删除和修改函数通过创造新的临时文件，复制源文件内容并进行修改，完成后用临时文件代替源文件。有效防止中途写入被终端出现的数据丢失。
 void delStu() {
+	char opt;
+	int id;
+	char name[10];
+	Student s;
 
+	printf("*****\n");
+	printf("通过_删除：\n");
+	printf("1.id\n");
+	printf("2.name\n");
+	printf("其它.返回\n");
+	scanf("%c",&opt);
+	getchar();
+
+	switch (opt) {
+		case '1':
+			printf("请输入学号：");
+			scanf("%d",&id);
+			getchar();
+			s = delByIdStu(id);
+			if (s.id == -1) { printf("不存在的学生!\n"); }//当id=-1也即未赋值时，没有找到相关，并进行判断。
+			else { printf("\n已删除！ | 学号：%d | 姓名：%s | 性别：%s \n", s.id, s.name, s.gender); };
+			printf("查找结束\n");
+		break;
+		case '2':
+			printf("请输入名字：");
+			scanf("%d", &id);
+			getchar();
+			s = delByNameStu(id);
+			if (s.id == -1) { printf("不存在的学生!\n"); }//当id=-1也即未赋值时，没有找到相关，并进行判断。
+			else { printf("\n已删除！ | 学号：%d | 姓名：%s | 性别：%s \n", s.id, s.name, s.gender); };
+			printf("查找结束\n");
+		break;
+		default:printf("不存在的选项,返回主菜单\n");return;;
+	}
+	return;
 }
 
 Student getByIdStu(int id) {
@@ -206,9 +244,7 @@ Student getByNameStu(char* name) {
 		if (!strcmp(name,nameT)) {
 
 			s.id = idT;
-
 			strcpy(s.name, nameT);
-
 			strcpy(s.gender, genderT);
 		}
 
@@ -217,4 +253,64 @@ Student getByNameStu(char* name) {
 	fp = NULL;
 
 	return s;
+}
+
+Student delByIdStu(int id) {
+	FILE* frp = fopen(DataFile, "r");
+	//FILE* fwp = fopen("dataFileTemp.txt", "w");
+	char arrBuff[40][128];
+	int arrNum = 0;//记录当前arrBuff指向第几行，每一次读取并复制会使该值+1.同时也有计数的作用。
+
+	Student s;
+	int idT;
+	char nameT[10];
+	char genderT[10];
+	char buff[40];
+	s.id = -1;
+
+	while (fgets(buff,40,frp) != NULL) {
+
+		strcpy(arrBuff[arrNum], buff);//将buff（一行）的内容读取到二维数组的第arrNum行，将此语句置前，以免buff在之后的分隔语句之后乱掉，不好处理
+
+		idT = atoi(strtok(buff, ":"));//把三项分隔出来的字符串放入缓冲,函数本质是用将“：”用字符串终止符替换
+		strcpy(nameT, strtok(NULL, ":"));
+		strcpy(genderT, strtok(NULL, ":"));
+			//如果匹配到删除项，跳过本次循环，也即本次复制
+			if (id == idT) {
+				s.id = idT;
+				strcpy(s.name, nameT);
+				strcpy(s.gender, genderT);
+				continue; 
+			}
+		arrNum++;
+	}
+	fclose(frp);
+	frp = NULL;
+
+	if (s.id == -1) { return s; }//代表没有在循环中复制，也即没有找到对应要删除的项。
+	//return s;
+
+	FILE* fwp = fopen(DataFileTemp, "w");
+	for (int i = 0 ; i < arrNum ; i++) {
+		fputs(arrBuff[i], fwp);
+	}
+
+
+	fclose(fwp);
+	fwp = NULL;
+	
+	//当流关闭后才能操纵文件外部
+
+	remove(DataFile);
+
+	if (rename(DataFileTemp, DataFile)) {
+		printf("改名失败!!!!!!!\n");
+		return s;
+	}
+
+	return s;
+}
+
+Student delByNameStu(char* name) {
+
 }
