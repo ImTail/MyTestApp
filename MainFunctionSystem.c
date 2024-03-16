@@ -21,6 +21,7 @@ void checkStu();
 void delStu();
 void modStu();
 void insertSort();
+int haveSameID(int);
 
 Student getByIdStu(int);
 Student getByNameStu(char*);
@@ -29,7 +30,6 @@ Student delByNameStu(char*);
 
 //主程序循环
 int main() {
-
 	char num;
 	int isRunning = 1;
 
@@ -68,7 +68,6 @@ void showMenu() {
 }
 
 void addStu() {
-	FILE* fp = fopen(DataFile, "a");
 
 	Student s;
 
@@ -85,8 +84,12 @@ void addStu() {
 	getchar();
 	printf("*****\n");
 
+	if (haveSameID(s.id)) {
+		printf("已经含有该ID，请重试!\n");
+		return;
+	}
 
-
+	FILE* fp = fopen(DataFile, "a");
 	fprintf(fp, "%d:%s:%s\n", s.id, s.name, s.gender);
 
 
@@ -96,6 +99,7 @@ void addStu() {
 	}
 	fclose(fp);
 	fp = NULL;
+
 
 	insertSort();
 	printf("添加成功\n");
@@ -458,7 +462,7 @@ void insertSort() {
 
 	int i, j, key;
 	char keyBuff[40];
-
+	//插入排序
 	for (i = 1; i < buffNum; i++) {
 
 		key = id[i];
@@ -494,4 +498,20 @@ void insertSort() {
 	}
 
 	return;
+}
+
+int haveSameID(int id) {
+	char buff[40];
+	FILE* frp = fopen(DataFile, "r");
+	int returnCode = 0;//默认返回值是false（0），也即没有相同的id
+
+	while (fgets(buff, 40, frp) != NULL) {
+
+		if (atoi(strtok(buff, ":")) == id) {returnCode =  1;}//若找出相同的id则返回1，即true
+	}
+
+	fclose(frp);
+	frp = NULL;
+
+	return returnCode;
 }
